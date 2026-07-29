@@ -227,6 +227,22 @@ sup.pot{font-size:.6em;font-weight:700;color:var(--morado);vertical-align:super;
 
 .pie{text-align:center;color:#5b21b6;font-size:.82rem;margin-top:22px;font-weight:500;opacity:.85;}
 
+/* ---------- Novedades ---------- */
+.nuevo-pill{display:inline-block;margin-top:12px;background:linear-gradient(135deg,var(--amarillo),var(--naranja));
+  color:#78350f;padding:8px 18px;border-radius:999px;font-weight:600;font-size:.9rem;animation:pop .5s ease .2s both;}
+.banner-nuevo{background:rgba(255,255,255,.92);border-radius:18px;padding:12px 18px;margin-bottom:14px;
+  box-shadow:var(--sombra);font-weight:500;text-align:center;border:3px dashed var(--amarillo);}
+.op-card .badge-nuevo{position:absolute;top:10px;right:10px;background:linear-gradient(135deg,var(--amarillo),var(--naranja));
+  color:#78350f;font-size:.62rem;font-weight:700;padding:3px 9px;border-radius:999px;letter-spacing:.5px;
+  animation:latir 2s ease-in-out infinite;z-index:1;}
+
+/* Signos de agrupación (jerarquía) y raíces con índice */
+.agr{font-weight:700;margin:0 .06em;}
+.agr-par{color:var(--rosa);}
+.agr-cor{color:var(--azul);}
+.agr-lla{color:var(--morado);}
+.root .idx{font-size:.55em;font-weight:700;}
+
 @media(max-width:520px){
   .hero h1{font-size:1.9rem;}
   .expr{font-size:1.9rem;}
@@ -245,8 +261,9 @@ sup.pot{font-size:.6em;font-weight:700;color:var(--morado);vertical-align:super;
     <div class="card hero">
       <span class="logo">➗</span>
       <h1>Fracciones Mágicas</h1>
-      <p class="sub">Suma · Resta · Multiplicación · División · Potenciación · Radicación</p>
+      <p class="sub">Suma · Resta · Multiplicación · División · Potenciación · Radicación · Polinomios · Propiedades</p>
       <span class="prof">👨‍🏫 Prof. Miguel Acosta · Máster College · 7°</span>
+      <br><span class="nuevo-pill">✨ ¡NUEVO! Polinomios aritméticos · Propiedades de la potenciación y la radicación</span>
 
       <form class="form-inicio" id="form-inicio">
         <div class="campo">
@@ -281,7 +298,10 @@ sup.pot{font-size:.6em;font-weight:700;color:var(--morado);vertical-align:super;
       <button class="btn naranja" onclick="terminarSesion()">🏁 Terminar</button>
     </div>
 
-    <h2 class="titulo-seccion">Elige una operación para practicar 👇</h2>
+    <div class="banner-nuevo">🎉 <b>¡Llegaron temas nuevos!</b> Ahora también puedes practicar
+      <b>🚦 Polinomios aritméticos</b> y <b>📐 las propiedades de la potenciación y la radicación</b>,
+      tal como en las guías que trabajamos en clase. ¡Y lo de siempre sigue aquí para que repases! 💜</div>
+    <h2 class="titulo-seccion">Elige un tema para practicar 👇</h2>
     <div class="grid-ops" id="grid-ops"></div>
     <p class="pie">Consejo: primero mira la pestaña <b>Aprende</b> y luego pasa a <b>Practica</b>. ¡Y siempre simplifica! ✨</p>
   </section>
@@ -395,6 +415,19 @@ function F(n,d){
 }
 function op(sym){return '<span class="op-simb">'+sym+'</span>';}
 
+/* Operaciones con fracciones (devuelven [num,den] ya simplificado) */
+function fAdd(n1,d1,n2,d2){return simplify(n1*d2+n2*d1,d1*d2);}
+function fSub(n1,d1,n2,d2){return simplify(n1*d2-n2*d1,d1*d2);}
+function fMul(n1,d1,n2,d2){return simplify(n1*n2,d1*d2);}
+function coprimos(maxN,maxD){var a,b;do{a=ri(1,maxN);b=ri(2,maxD);}while(gcd(a,b)!==1);return [a,b];}
+
+/* Render de signos de agrupación, potencias y raíces con índice */
+function par(x){return '<span class="agr agr-par">(</span>'+x+'<span class="agr agr-par">)</span>';}
+function cor(x){return '<span class="agr agr-cor">[</span>'+x+'<span class="agr agr-cor">]</span>';}
+function lla(x){return '<span class="agr agr-lla">{</span>'+x+'<span class="agr agr-lla">}</span>';}
+function potF(a,b,e){return par(F(a,b))+'<sup class="pot">'+e+'</sup>';}
+function raizF(inner,idx){return '<span class="root">'+(idx===3?'<sup class="idx">3</sup>':'')+'√</span><span class="radicand">'+inner+'</span>';}
+
 /* ================= ESTADO ================= */
 var estudiante={nombre:'',curso:''};
 var sesion={inicio:0,correctos:0,intentos:0,xp:0,racha:0,mejorRacha:0,porOp:{},enviado:false};
@@ -423,7 +456,11 @@ var OPS={
   pot:{nombre:'Potenciación',emoji:'🔟',color:'#8b5cf6',desc:'Exponente arriba y abajo',
     gen:genPot, aprende:aprendePot},
   rad:{nombre:'Radicación',emoji:'√',color:'#06b6d4',desc:'Raíz de arriba y de abajo',
-    gen:genRad, aprende:aprendeRad}
+    gen:genRad, aprende:aprendeRad},
+  poli:{nombre:'Polinomios aritméticos',emoji:'🚦',color:'#0d9488',desc:'Jerarquía de operaciones',nuevo:true,
+    gen:genPoli, aprende:aprendePoli},
+  prop:{nombre:'Propiedades: potencia y raíz',emoji:'📐',color:'#1e40af',desc:'Propiedades y geometría',nuevo:true,
+    gen:genProp, aprende:aprendeProp}
 };
 
 /* ================= GENERADORES DE EJERCICIOS ================= */
@@ -518,6 +555,317 @@ function genRad(){
   };
 }
 
+/* ---------- POLINOMIOS ARITMÉTICOS (guía de clase) ---------- */
+function genPoli(){
+  var r=Math.random();
+  if(r<0.35){return genPoliN1();}
+  if(r<0.7){return genPoliN2();}
+  return genPoliN3();
+}
+function genPoliN1(){
+  // a/b ± c/d × e/f  → primero la multiplicación
+  var a=ri(1,5),b=ri(2,6),c=ri(1,3),d=ri(2,4),e=ri(1,3),f=ri(2,4);
+  var signo=pick(['+','−']);
+  if(signo==='−'){c=1;e=1;if(a*d*f<=b){signo='+';}}
+  var pm=simplify(c*e,d*f);
+  var rn=(signo==='+')?a*pm[1]+pm[0]*b:a*pm[1]-pm[0]*b, rd=b*pm[1];
+  var res=simplify(rn,rd);
+  return {
+    tag:'Polinomio · Nivel 1',
+    inst:'Resuelve respetando la jerarquía y escribe el resultado más simple:',
+    expr:F(a,b)+op(signo)+F(c,d)+op('×')+F(e,f),
+    ansN:res[0],ansD:res[1],
+    hint:'🚦 <b>Jerarquía:</b> primero la <b>multiplicación</b> y después la '+(signo==='+'?'suma':'resta')+'. ¡Nada de resolver de izquierda a derecha sin pensar!',
+    sol:[
+      '<span class="paso">Paso 1 · Jerarquía</span> Primero la <b>multiplicación</b> (recto): '+F(c,d)+op('×')+F(e,f)+' = '+F(c*e,d*f)+(c*e!==pm[0]||d*f!==pm[1]?' = '+F(pm[0],pm[1]):''),
+      '<span class="paso">Paso 2 · '+(signo==='+'?'Suma':'Resta')+'</span> Con la carita feliz 😊: '+F(a,b)+op(signo)+F(pm[0],pm[1])+' = '+F(rn,rd)+(rn!==res[0]||rd!==res[1]?' , y simplificando: '+F(res[0],res[1]):''),
+      '<span class="paso">Resultado</span> '+F(res[0],res[1])
+    ]
+  };
+}
+function genPoliN2(){
+  if(Math.random()<0.5){
+    // (a/b ± c/d) × e/f  → primero el paréntesis
+    var a=ri(1,5),b=ri(2,6),c=ri(1,5),d=ri(2,6),e=ri(1,3),f=ri(2,4);
+    var signo=pick(['+','−']);
+    if(signo==='−'){
+      if(a*d===c*b){a++;}
+      if(a*d<c*b){var t=a;a=c;c=t;t=b;b=d;d=t;}
+    }
+    var rn=(signo==='+')?a*d+c*b:a*d-c*b, rd=b*d;
+    var i1=simplify(rn,rd);
+    var res=fMul(i1[0],i1[1],e,f);
+    return {
+      tag:'Polinomio · Nivel 2',
+      inst:'Resuelve respetando la jerarquía y escribe el resultado más simple:',
+      expr:par(F(a,b)+op(signo)+F(c,d))+op('×')+F(e,f),
+      ansN:res[0],ansD:res[1],
+      hint:'🚦 Primero lo del <b>paréntesis</b> ( ) y después la multiplicación. ¡El paréntesis cambia el resultado!',
+      sol:[
+        '<span class="paso">Paso 1 · Paréntesis</span> '+F(a,b)+op(signo)+F(c,d)+' = '+F(rn,rd)+(rn!==i1[0]||rd!==i1[1]?' = '+F(i1[0],i1[1]):''),
+        '<span class="paso">Paso 2 · Multiplicación</span> Recto: '+F(i1[0],i1[1])+op('×')+F(e,f)+' = '+F(i1[0]*e,i1[1]*f)+((i1[0]*e!==res[0]||i1[1]*f!==res[1])?' = '+F(res[0],res[1]):''),
+        '<span class="paso">Resultado</span> '+F(res[0],res[1])
+      ]
+    };
+  }
+  // (a/b)² ± c/d × k  → potencia, multiplicación y al final suma/resta
+  var bs=pick([[1,2],[2,3],[3,4],[1,3],[2,5],[3,5]]);var a=bs[0],b=bs[1];
+  var c=ri(1,3),d=ri(2,6),k=ri(2,3);
+  var potN=a*a,potD=b*b;
+  var pm=simplify(c*k,d);
+  var signo='+';
+  if(potN*pm[1]>pm[0]*potD && Math.random()<0.5){signo='−';}
+  var rn=(signo==='+')?potN*pm[1]+pm[0]*potD:potN*pm[1]-pm[0]*potD, rd=potD*pm[1];
+  var res=simplify(rn,rd);
+  return {
+    tag:'Polinomio · Nivel 2',
+    inst:'Resuelve respetando la jerarquía y escribe el resultado más simple:',
+    expr:potF(a,b,2)+op(signo)+F(c,d)+op('×')+F(k,1),
+    ansN:res[0],ansD:res[1],
+    hint:'🚦 Primero la <b>potencia</b>, luego la <b>multiplicación</b> y por último la '+(signo==='+'?'suma':'resta')+'.',
+    sol:[
+      '<span class="paso">Paso 1 · Potencia</span> '+potF(a,b,2)+' = '+F(potN,potD)+' (el exponente va arriba y abajo)',
+      '<span class="paso">Paso 2 · Multiplicación</span> '+F(c,d)+op('×')+F(k,1)+' = '+F(c*k,d)+(c*k!==pm[0]||d!==pm[1]?' = '+F(pm[0],pm[1]):''),
+      '<span class="paso">Paso 3 · '+(signo==='+'?'Suma':'Resta')+'</span> '+F(potN,potD)+op(signo)+F(pm[0],pm[1])+' = '+F(rn,rd)+(rn!==res[0]||rd!==res[1]?' = '+F(res[0],res[1]):''),
+      '<span class="paso">Resultado</span> '+F(res[0],res[1])
+    ]
+  };
+}
+function genPoliN3(){
+  if(Math.random()<0.5){
+    // k − [ a/b + ( c/d − e/f ) ]  → de adentro hacia afuera
+    // todas las fracciones propias para que el resultado sea siempre positivo
+    var k=ri(2,3),b=ri(2,5),a=ri(1,b-1),d=ri(2,4),c=ri(1,d-1),f=ri(2,4),e=ri(1,f-1);
+    if(c*f===e*d){f++;}
+    if(c*f<e*d){var t=c;c=e;e=t;t=d;d=f;f=t;}
+    var i1=fSub(c,d,e,f);
+    var i2=fAdd(a,b,i1[0],i1[1]);
+    var res=fSub(k,1,i2[0],i2[1]);
+    return {
+      tag:'Polinomio · Nivel 3',
+      inst:'Resuelve respetando la jerarquía y escribe el resultado más simple:',
+      expr:F(k,1)+op('−')+cor(F(a,b)+op('+')+par(F(c,d)+op('−')+F(e,f))),
+      ansN:res[0],ansD:res[1],
+      hint:'🚦 De <b>adentro hacia afuera</b>: primero el paréntesis ( ), luego el corchete [ ] y al final la resta con el entero.',
+      sol:[
+        '<span class="paso">Paso 1 · Paréntesis (lo más adentro)</span> '+F(c,d)+op('−')+F(e,f)+' = '+F(i1[0],i1[1]),
+        '<span class="paso">Paso 2 · Corchete</span> '+F(a,b)+op('+')+F(i1[0],i1[1])+' = '+F(i2[0],i2[1]),
+        '<span class="paso">Paso 3 · La resta final</span> '+F(k,1)+op('−')+F(i2[0],i2[1])+' = '+F(k*i2[1],i2[1])+op('−')+F(i2[0],i2[1])+' = '+F(res[0],res[1]),
+        '<span class="paso">Resultado</span> '+F(res[0],res[1])
+      ]
+    };
+  }
+  // { [ (a/b)² + √(p²/q²) ] × k } + g/h  → potencia y raíz, corchete, llave y suma final
+  var bs=pick([[1,2],[1,3],[2,3],[1,4],[3,4]]);var a=bs[0],b=bs[1];
+  var p=ri(1,3),q=ri(2,5);if(p===q){q++;}
+  var k=ri(2,3),g=ri(1,2),h=ri(2,4);
+  var i1=fAdd(a*a,b*b,p,q);
+  var i2=fMul(i1[0],i1[1],k,1);
+  var res=fAdd(i2[0],i2[1],g,h);
+  return {
+    tag:'Polinomio · Nivel 3',
+    inst:'Resuelve respetando la jerarquía y escribe el resultado más simple:',
+    expr:lla(cor(potF(a,b,2)+op('+')+raizF(F(p*p,q*q)))+op('×')+F(k,1))+op('+')+F(g,h),
+    ansN:res[0],ansD:res[1],
+    hint:'🚦 Primero lo de <b>más adentro</b> (la potencia y la raíz), luego el corchete [ ], luego la llave { } y de último la suma.',
+    sol:[
+      '<span class="paso">Paso 1 · Potencia y raíz</span> '+potF(a,b,2)+' = '+F(a*a,b*b)+' &nbsp;y&nbsp; '+raizF(F(p*p,q*q))+' = '+F(p,q),
+      '<span class="paso">Paso 2 · Corchete</span> '+F(a*a,b*b)+op('+')+F(p,q)+' = '+F(i1[0],i1[1]),
+      '<span class="paso">Paso 3 · Llave</span> '+F(i1[0],i1[1])+op('×')+F(k,1)+' = '+F(i2[0],i2[1]),
+      '<span class="paso">Paso 4 · Suma final</span> '+F(i2[0],i2[1])+op('+')+F(g,h)+' = '+F(res[0],res[1]),
+      '<span class="paso">Resultado</span> '+F(res[0],res[1])
+    ]
+  };
+}
+
+/* ---------- PROPIEDADES DE POTENCIACIÓN Y RADICACIÓN (guía de refuerzo) ---------- */
+function genProp(){
+  var r=Math.random();
+  if(r<0.22){return genPropBase();}
+  if(r<0.40){return genPropNeg();}
+  if(r<0.58){return genPropRaiz();}
+  if(r<0.74){return genPropPuente();}
+  return genPropGeo();
+}
+function genPropBase(){
+  var bs=pick([[1,2],[2,3],[3,4],[2,5],[1,3],[3,2]]);var a=bs[0],b=bs[1];
+  var esDiv=Math.random()<0.5, m,n,s;
+  if(esDiv){m=ri(3,4);s=Math.min(ri(1,3),m-1);n=m-s;}
+  else{m=ri(1,2);n=ri(1,3-m);s=m+n;}
+  var num=Math.pow(a,s),den=Math.pow(b,s),res=simplify(num,den);
+  return {
+    tag:'Propiedades · misma base',
+    expr:potF(a,b,m)+op(esDiv?'÷':'×')+potF(a,b,n),
+    ansN:res[0],ansD:res[1],
+    hint:'Misma base: al <b>multiplicar</b> se <b>suman</b> los exponentes y al <b>dividir</b> se <b>restan</b>. El resultado queda con la misma base.',
+    sol:[
+      '<span class="paso">Paso 1 · Regla</span> Misma base: '+(esDiv?'al dividir <b>restamos</b> los exponentes: '+m+' − '+n:'al multiplicar <b>sumamos</b> los exponentes: '+m+' + '+n)+' = <span class="resalta">'+s+'</span>',
+      '<span class="paso">Paso 2 · Queda</span> '+potF(a,b,s),
+      '<span class="paso">Paso 3 · Desarrollar</span> Numerador: '+Array(s).fill(a).join('×')+' = <span class="resalta">'+num+'</span>. Denominador: '+Array(s).fill(b).join('×')+' = <span class="resalta">'+den+'</span>',
+      '<span class="paso">Resultado</span> '+F(res[0],res[1])
+    ]
+  };
+}
+function genPropNeg(){
+  var bs=pick([[2,3],[3,4],[1,2],[2,5],[3,5],[5,4]]);var p=bs[0],q=bs[1];
+  var n=pick([1,2,2]);
+  var num=Math.pow(q,n),den=Math.pow(p,n),res=simplify(num,den);
+  return {
+    tag:'Propiedades · exponente negativo',
+    expr:potF(p,q,'−'+n),
+    ansN:res[0],ansD:res[1],
+    hint:'El exponente negativo <b>invierte</b> la fracción (¡no la vuelve negativa!). Luego elevas normal, arriba y abajo.',
+    sol:[
+      '<span class="paso">Paso 1 · Invertir</span> '+potF(p,q,'−'+n)+' = '+potF(q,p,n)+' (el signo menos voltea la fracción)',
+      '<span class="paso">Paso 2 · Desarrollar</span> Numerador: '+Array(n).fill(q).join('×')+' = <span class="resalta">'+num+'</span>. Denominador: '+Array(n).fill(p).join('×')+' = <span class="resalta">'+den+'</span>',
+      '<span class="paso">Resultado</span> '+F(res[0],res[1])+' (positivo, ¡no negativo!)'
+    ]
+  };
+}
+function genPropRaiz(){
+  if(Math.random()<0.5){
+    var ab=coprimos(3,4),cd=coprimos(3,4);
+    var a=ab[0],b=ab[1],c=cd[0],d=cd[1];
+    var res=fMul(a,b,c,d);
+    return {
+      tag:'Propiedades · radicación',
+      expr:raizF(F(a*a,b*b)+op('×')+F(c*c,d*d)),
+      ansN:res[0],ansD:res[1],
+      hint:'La raíz de un producto se <b>separa</b>: √(x·y) = √x · √y. Saca la raíz de cada fracción y luego multiplica recto.',
+      sol:[
+        '<span class="paso">Paso 1 · Separar</span> '+raizF(F(a*a,b*b))+op('×')+raizF(F(c*c,d*d)),
+        '<span class="paso">Paso 2 · Raíces</span> '+raizF(F(a*a,b*b))+' = '+F(a,b)+' &nbsp;y&nbsp; '+raizF(F(c*c,d*d))+' = '+F(c,d),
+        '<span class="paso">Paso 3 · Multiplicar</span> '+F(a,b)+op('×')+F(c,d)+' = '+F(a*c,b*d)+((a*c!==res[0]||b*d!==res[1])?' = '+F(res[0],res[1]):''),
+        '<span class="paso">Resultado</span> '+F(res[0],res[1])
+      ]
+    };
+  }
+  var ab=coprimos(4,5);var a=ab[0],b=ab[1];
+  var res=simplify(a,b);
+  return {
+    tag:'Propiedades · radicación',
+    expr:raizF(F(a*a*a,b*b*b),3),
+    ansN:res[0],ansD:res[1],
+    hint:'Raíz cúbica de una fracción: raíz de arriba y raíz de abajo. Busca los cubos perfectos (1, 8, 27, 64, 125).',
+    sol:[
+      '<span class="paso">Paso 1 · Separar</span> Raíz cúbica arriba y abajo: '+raizF(''+(a*a*a),3)+' entre '+raizF(''+(b*b*b),3),
+      '<span class="paso">Paso 2 · Cubos perfectos</span> '+raizF(''+(a*a*a),3)+' = <span class="resalta">'+a+'</span> &nbsp;y&nbsp; '+raizF(''+(b*b*b),3)+' = <span class="resalta">'+b+'</span>',
+      '<span class="paso">Resultado</span> '+F(res[0],res[1])
+    ]
+  };
+}
+function genPropPuente(){
+  var e=pick([
+    {A:8,B:27,m:1,n:3,r:[2,3]},
+    {A:8,B:27,m:2,n:3,r:[2,3]},
+    {A:4,B:9,m:1,n:2,r:[2,3]},
+    {A:4,B:9,m:3,n:2,r:[2,3]},
+    {A:16,B:25,m:1,n:2,r:[4,5]},
+    {A:27,B:8,m:2,n:3,r:[3,2]},
+    {A:9,B:16,m:3,n:2,r:[3,4]},
+    {A:25,B:36,m:1,n:2,r:[5,6]},
+    {A:27,B:1000,m:1,n:3,r:[3,10]}
+  ]);
+  var num=Math.pow(e.r[0],e.m),den=Math.pow(e.r[1],e.m),res=simplify(num,den);
+  return {
+    tag:'El puente 🌉',
+    expr:par(F(e.A,e.B))+'<sup class="pot">'+e.m+'/'+e.n+'</sup>',
+    ansN:res[0],ansD:res[1],
+    hint:'🌉 El puente: el <b>denominador</b> del exponente es el <b>índice de la raíz</b> y el numerador es la potencia. Conviene sacar primero la raíz.',
+    sol:[
+      '<span class="paso">Paso 1 · Traducir</span> El exponente '+e.m+'/'+e.n+' significa: raíz de índice <span class="resalta">'+e.n+'</span> y potencia <span class="resalta">'+e.m+'</span>.',
+      '<span class="paso">Paso 2 · Primero la raíz</span> '+raizF(F(e.A,e.B),e.n===3?3:undefined)+' = '+F(e.r[0],e.r[1]),
+      '<span class="paso">Paso 3 · Luego la potencia</span> '+potF(e.r[0],e.r[1],e.m)+' = '+F(num,den),
+      '<span class="paso">Resultado</span> '+F(res[0],res[1])
+    ]
+  };
+}
+function genPropGeo(){
+  var v=ri(1,5);
+  if(v===1){
+    var ab=coprimos(7,9);var a=ab[0],b=ab[1];
+    var res=simplify(a*a,b*b);
+    return {
+      tag:'Geometría 📐',
+      inst:'📐 Un cuadrado tiene lado '+F(a,b)+' m. ¿Cuál es su área (en m²)?',
+      expr:'<span class="int">ℓ =</span> '+F(a,b)+'<span class="int"> m</span>'+op('→')+'<span class="int">A = ¿?</span>',
+      ansN:res[0],ansD:res[1],
+      hint:'Área del cuadrado: <b>A = ℓ²</b>. Eleva el lado al cuadrado, arriba y abajo.',
+      sol:[
+        '<span class="paso">Paso 1 · Fórmula</span> A = ℓ² (elevar al cuadrado, la potenciación)',
+        '<span class="paso">Paso 2 · Elevar</span> '+potF(a,b,2)+' = '+F(a*a,b*b),
+        '<span class="paso">Resultado</span> A = '+F(res[0],res[1])+' m²'
+      ]
+    };
+  }
+  if(v===2){
+    var ab=coprimos(7,9);var a=ab[0],b=ab[1];
+    var res=simplify(a,b);
+    return {
+      tag:'Geometría 📐',
+      inst:'📐 Un cuadrado tiene área '+F(a*a,b*b)+' m². ¿Cuánto mide su lado (en m)?',
+      expr:'<span class="int">A =</span> '+F(a*a,b*b)+'<span class="int"> m²</span>'+op('→')+'<span class="int">ℓ = ¿?</span>',
+      ansN:res[0],ansD:res[1],
+      hint:'El lado se recupera con la operación <b>inversa</b>: ℓ = √A (raíz de arriba y de abajo).',
+      sol:[
+        '<span class="paso">Paso 1 · Fórmula</span> ℓ = √A (la radicación deshace la potenciación)',
+        '<span class="paso">Paso 2 · Raíz</span> '+raizF(F(a*a,b*b))+' = '+F(a,b)+' &nbsp;(√'+(a*a)+' = '+a+' y √'+(b*b)+' = '+b+')',
+        '<span class="paso">Resultado</span> ℓ = '+F(res[0],res[1])+' m'
+      ]
+    };
+  }
+  if(v===3){
+    var ab=coprimos(4,5);var a=ab[0],b=ab[1];
+    var res=simplify(a*a*a,b*b*b);
+    return {
+      tag:'Geometría 📐',
+      inst:'📐 Un tanque cúbico tiene arista '+F(a,b)+' m. ¿Cuál es su volumen (en m³)?',
+      expr:'<span class="int">a =</span> '+F(a,b)+'<span class="int"> m</span>'+op('→')+'<span class="int">V = ¿?</span>',
+      ansN:res[0],ansD:res[1],
+      hint:'Volumen del cubo: <b>V = a³</b>. Eleva la arista al cubo, arriba y abajo.',
+      sol:[
+        '<span class="paso">Paso 1 · Fórmula</span> V = a³',
+        '<span class="paso">Paso 2 · Elevar</span> '+potF(a,b,3)+' = '+F(a*a*a,b*b*b),
+        '<span class="paso">Resultado</span> V = '+F(res[0],res[1])+' m³'
+      ]
+    };
+  }
+  if(v===4){
+    var ab=coprimos(4,5);var a=ab[0],b=ab[1];
+    var res=simplify(a,b);
+    return {
+      tag:'Geometría 📐',
+      inst:'📐 Un tanque cúbico guarda '+F(a*a*a,b*b*b)+' m³ de agua. ¿Cuánto mide su arista (en m)?',
+      expr:'<span class="int">V =</span> '+F(a*a*a,b*b*b)+'<span class="int"> m³</span>'+op('→')+'<span class="int">a = ¿?</span>',
+      ansN:res[0],ansD:res[1],
+      hint:'La arista se recupera con la raíz cúbica: <b>a = ∛V</b>. ¡Una operación deshace a la otra!',
+      sol:[
+        '<span class="paso">Paso 1 · Fórmula</span> a = ∛V (la raíz cúbica deshace el cubo)',
+        '<span class="paso">Paso 2 · Raíz cúbica</span> '+raizF(F(a*a*a,b*b*b),3)+' = '+F(a,b),
+        '<span class="paso">Resultado</span> a = '+F(res[0],res[1])+' m. Si la elevas al cubo, vuelves a '+F(a*a*a,b*b*b)+'.'
+      ]
+    };
+  }
+  var t=pick([[3,4,5],[6,8,10],[5,12,13],[8,15,17],[9,12,15]]);
+  var dd=ri(2,10);
+  var c1=simplify(t[0],dd),c2=simplify(t[1],dd);
+  var s=fAdd(c1[0]*c1[0],c1[1]*c1[1],c2[0]*c2[0],c2[1]*c2[1]);
+  var res=[Math.round(Math.sqrt(s[0])),Math.round(Math.sqrt(s[1]))];
+  return {
+    tag:'Geometría 📐',
+    inst:'📐 Un triángulo rectángulo tiene catetos '+F(c1[0],c1[1])+' m y '+F(c2[0],c2[1])+' m. ¿Cuánto mide la hipotenusa (en m)?',
+    expr:'<span class="int">c =</span> '+raizF(potF(c1[0],c1[1],2)+op('+')+potF(c2[0],c2[1],2)),
+    ansN:res[0],ansD:res[1],
+    hint:'Pitágoras: <b>c = √(a² + b²)</b>. Eleva los catetos al cuadrado, <b>suma dentro de la raíz</b> y al final extrae la raíz.',
+    sol:[
+      '<span class="paso">Paso 1 · Elevar los catetos</span> '+potF(c1[0],c1[1],2)+' = '+F(c1[0]*c1[0],c1[1]*c1[1])+' &nbsp;y&nbsp; '+potF(c2[0],c2[1],2)+' = '+F(c2[0]*c2[0],c2[1]*c2[1]),
+      '<span class="paso">Paso 2 · Sumar dentro de la raíz</span> '+F(c1[0]*c1[0],c1[1]*c1[1])+op('+')+F(c2[0]*c2[0],c2[1]*c2[1])+' = '+F(s[0],s[1])+' (¡nunca se suma por separado!)',
+      '<span class="paso">Paso 3 · Extraer la raíz</span> '+raizF(F(s[0],s[1]))+' = '+F(res[0],res[1]),
+      '<span class="paso">Resultado</span> c = '+F(res[0],res[1])+' m'
+    ]
+  };
+}
+
 /* ================= INICIO DE SESIÓN ================= */
 document.getElementById('form-inicio').addEventListener('submit',function(e){
   e.preventDefault();
@@ -545,7 +893,7 @@ function construirMenu(){
     var div=document.createElement('div');
     div.className='op-card';
     div.style.setProperty('--color',o.color);
-    div.innerHTML='<span class="emoji">'+o.emoji+'</span><h3>'+o.nombre+'</h3><p>'+o.desc+'</p>';
+    div.innerHTML=(o.nuevo?'<span class="badge-nuevo">¡NUEVO!</span>':'')+'<span class="emoji">'+o.emoji+'</span><h3>'+o.nombre+'</h3><p>'+o.desc+'</p>';
     div.onclick=function(){abrirActividad(k);};
     g.appendChild(div);
   });
@@ -759,10 +1107,118 @@ function aprendeRad(){
   cargar();
 }
 
+/* Convierte un ejercicio generado en una demo paso a paso */
+function demoDesdeEjercicio(titulo,e){
+  var pasos=['<span class="paso">'+titulo+'</span> <div class="expr">'+e.expr+'</div>'];
+  e.sol.forEach(function(p){pasos.push(p);});
+  pasos.push('<span class="paso">✨ ¡Así se hace!</span> <div class="expr">'+e.expr+op('=')+F(e.ansN,e.ansD)+'</div>');
+  return pasos;
+}
+
+/* Aprende: POLINOMIOS ARITMÉTICOS (guía de clase) */
+function aprendePoli(){
+  document.getElementById('demo-metodos').innerHTML=
+    '<span class="mini-tab activa" id="mp-jer">🚦 La jerarquía</span>'+
+    '<span class="mini-tab" id="mp-n1">1️⃣ Nivel 1</span>'+
+    '<span class="mini-tab" id="mp-n2">2️⃣ Nivel 2</span>'+
+    '<span class="mini-tab" id="mp-n3">3️⃣ Nivel 3</span>'+
+    '<span class="mini-tab" id="mp-otro" style="background:#fff;">🎲 Otro ejemplo</span>';
+  var cargarActual;
+  function activar(id){['mp-jer','mp-n1','mp-n2','mp-n3'].forEach(function(x){document.getElementById(x).classList.toggle('activa',x===id);});}
+  function cargarJer(){
+    activar('mp-jer');cargarActual=cargarJer;
+    playDemo([
+      '<span class="paso">Para entrar en contexto</span> ¿Cuánto es <span class="resalta">2 + 3 × 4</span>? Algunos responden <b>20</b> (sumando primero) y otros <b>14</b> (multiplicando primero). ¡No pueden ser correctas las dos!',
+      '<span class="paso">La respuesta correcta es 14</span> Porque la <b>multiplicación se hace antes</b> que la suma: 3 × 4 = 12 y luego 2 + 12 = <span class="resalta">14</span>. Para que todos lleguemos al mismo resultado existe un <b>orden</b>.',
+      '<span class="paso">¿Qué es un polinomio aritmético?</span> Es una expresión con <b>varias operaciones combinadas</b> (suma, resta, multiplicación, división, potencias y raíces), muchas veces con signos de agrupación. “Resolverlo” significa reducirlo a <b>un solo número</b>.',
+      '<span class="paso">El orden de las operaciones (jerarquía)</span><div style="text-align:left;line-height:1.7;">1.º <b>Signos de agrupación</b>: '+par('&nbsp;')+', luego '+cor('&nbsp;')+' y por último '+lla('&nbsp;')+' — <i>de adentro hacia afuera</i>.<br>2.º <b>Potencias y raíces</b>.<br>3.º <b>Multiplicaciones y divisiones</b>, de izquierda a derecha.<br>4.º <b>Sumas y restas</b>, de izquierda a derecha.</div>',
+      '<span class="paso">Recuerda las fracciones</span> Para <b>sumar/restar</b>: carita feliz 😊 (o común denominador). Para <b>multiplicar</b>: recto. Para <b>dividir</b>: se multiplica por el recíproco (se “voltea” la segunda fracción).',
+      '<span class="paso">⚠️ Errores frecuentes</span><div style="text-align:left;line-height:1.7;">• <b>No</b> resuelvas de izquierda a derecha sin pensar: primero potencias y raíces, luego × y ÷, y al final + y −.<br>• Dentro de los signos de agrupación se trabaja <b>de adentro hacia afuera</b>.<br>• Entre varias × y ÷ (o varias + y −) sí se va de izquierda a derecha.<br>• Común denominador <b>solo</b> para sumar y restar.</div>'
+    ]);
+  }
+  function cargarN1(){activar('mp-n1');cargarActual=cargarN1;playDemo(demoDesdeEjercicio('Nivel 1 · dos operaciones',genPoliN1()));}
+  function cargarN2(){activar('mp-n2');cargarActual=cargarN2;playDemo(demoDesdeEjercicio('Nivel 2 · paréntesis y potencias',genPoliN2()));}
+  function cargarN3(){activar('mp-n3');cargarActual=cargarN3;playDemo(demoDesdeEjercicio('Nivel 3 · ¡todas las operaciones!',genPoliN3()));}
+  document.getElementById('mp-jer').onclick=cargarJer;
+  document.getElementById('mp-n1').onclick=cargarN1;
+  document.getElementById('mp-n2').onclick=cargarN2;
+  document.getElementById('mp-n3').onclick=cargarN3;
+  document.getElementById('mp-otro').onclick=function(){cargarActual();};
+  cargarJer();
+}
+
+/* Aprende: PROPIEDADES DE POTENCIACIÓN Y RADICACIÓN (guía de refuerzo) */
+function aprendeProp(){
+  document.getElementById('demo-metodos').innerHTML=
+    '<span class="mini-tab activa" id="mq-pot">⚡ Potenciación</span>'+
+    '<span class="mini-tab" id="mq-rad">√ Radicación</span>'+
+    '<span class="mini-tab" id="mq-pue">🌉 El puente</span>'+
+    '<span class="mini-tab" id="mq-geo">📐 Geometría</span>'+
+    '<span class="mini-tab" id="mq-err">⚠️ Errores</span>';
+  function activar(id){['mq-pot','mq-rad','mq-pue','mq-geo','mq-err'].forEach(function(x){document.getElementById(x).classList.toggle('activa',x===id);});}
+  function cargarPot(){
+    activar('mq-pot');
+    playDemo([
+      '<span class="paso">Dos operaciones inversas</span> Piensa en un <b>cuadrado</b>: si conoces su lado, <b>elevas al cuadrado</b> (potenciación) para obtener el área; si conoces el área, <b>extraes la raíz</b> (radicación) para recuperar el lado. ¡Van siempre de la mano!',
+      '<span class="paso">Propiedades de la potenciación</span><div style="text-align:left;line-height:2;">a<sup class="pot">m</sup> · a<sup class="pot">n</sup> = a<sup class="pot">m+n</sup> &nbsp;(al multiplicar se <b>suman</b>)<br>a<sup class="pot">m</sup> ÷ a<sup class="pot">n</sup> = a<sup class="pot">m−n</sup> &nbsp;(al dividir se <b>restan</b>)<br>(a<sup class="pot">m</sup>)<sup class="pot">n</sup> = a<sup class="pot">m·n</sup> &nbsp;(potencia de potencia: se multiplican)<br>(a/b)<sup class="pot">n</sup> = a<sup class="pot">n</sup>/b<sup class="pot">n</sup> &nbsp;(arriba y abajo)<br>a<sup class="pot">0</sup> = 1 &nbsp;(¡siempre vale 1!)<br>(p/q)<sup class="pot">−n</sup> = (q/p)<sup class="pot">n</sup> &nbsp;(el menos <b>invierte</b>)</div>',
+      '<span class="paso">Ejemplo de la guía</span> <div class="expr" style="font-size:1.7rem;">'+potF(2,3,4)+op('×')+potF(2,3,'−2')+op('÷')+potF(2,3,0)+'</div>Misma base: sumamos y restamos los exponentes: 4 + (−2) − 0 = <span class="resalta">2</span>.',
+      '<span class="paso">Resultado</span> <div class="expr">'+potF(2,3,2)+op('=')+F(4,9)+'</div>Al multiplicar se <b>suman</b> exponentes, al dividir se <b>restan</b>, y toda potencia de exponente 0 vale <b>1</b>.'
+    ]);
+  }
+  function cargarRad(){
+    activar('mq-rad');
+    playDemo([
+      '<span class="paso">Propiedades de la radicación</span><div style="text-align:left;line-height:2;">√(x · y) = √x · √y &nbsp;(raíz de un producto)<br>√(x ÷ y) = √x ÷ √y &nbsp;(raíz de un cociente)<br>⚠️ ¡Solo con <b>producto</b> o <b>cociente</b>! Con suma o resta <b>no</b> se separa.</div>',
+      '<span class="paso">Ejemplo de la guía</span> <div class="expr" style="font-size:1.7rem;">'+raizF(F(9,16)+op('×')+F(4,25))+'</div>',
+      '<span class="paso">Separamos las raíces</span> '+raizF(F(9,16))+op('×')+raizF(F(4,25))+op('=')+F(3,4)+op('×')+F(2,5),
+      '<span class="paso">Multiplicamos recto</span> <div class="expr">'+F(6,20)+op('=')+F(3,10)+'</div>',
+      '<span class="paso">Otro de la guía: raíz cúbica</span> <div class="expr">'+raizF(F(27,8),3)+op('=')+F(3,2)+'</div>Porque ∛27 = 3 y ∛8 = 2.'
+    ]);
+  }
+  function cargarPue(){
+    activar('mq-pue');
+    playDemo([
+      '<span class="paso">El puente entre las dos 🌉</span> Todo radical se puede escribir como potencia y viceversa: <b>el denominador del exponente es el índice de la raíz</b> y el numerador es la potencia.<br><br>a<sup class="pot">m/n</sup> = ⁿ√(a<sup class="pot">m</sup>) &nbsp;&nbsp;y en particular&nbsp;&nbsp; a<sup class="pot">1/n</sup> = ⁿ√a',
+      '<span class="paso">Ejemplo de la guía</span> <div class="expr" style="font-size:1.7rem;">'+par(F(8,27))+'<sup class="pot">2/3</sup></div>El 3 (abajo) indica <b>raíz cúbica</b> y el 2 (arriba) indica <b>elevar al cuadrado</b>.',
+      '<span class="paso">Primero la raíz cúbica</span> '+raizF(F(8,27),3)+op('=')+F(2,3)+' &nbsp;(∛8 = 2 y ∛27 = 3)',
+      '<span class="paso">Luego elevamos al cuadrado</span> <div class="expr">'+potF(2,3,2)+op('=')+F(4,9)+'</div>Conviene <b>extraer primero la raíz</b> y elevar al final: ¡los números quedan más pequeños!'
+    ]);
+  }
+  function cargarGeo(){
+    activar('mq-geo');
+    playDemo([
+      '<span class="paso">Geometría de bolsillo 📐</span><div style="text-align:left;line-height:2;">Cuadrado: A = ℓ² &nbsp;↔&nbsp; ℓ = √A<br>Cubo: V = a³ &nbsp;↔&nbsp; a = ∛V<br>Pitágoras: c = √(a² + b²)</div>',
+      '<span class="paso">Del lado al área</span> Un mosaico cuadrado tiene lado '+F(3,5)+' m. Su área se obtiene <b>elevando al cuadrado</b>: <div class="expr">'+potF(3,5,2)+op('=')+F(9,25)+'</div>m².',
+      '<span class="paso">Del volumen a la arista</span> Un tanque cúbico guarda '+F(8,27)+' m³ de agua. Su arista se recupera <b>extrayendo la raíz cúbica</b>: <div class="expr">'+raizF(F(8,27),3)+op('=')+F(2,3)+'</div>m. ¡Una operación deshace a la otra!',
+      '<span class="paso">Pitágoras con fracciones</span> Catetos de '+F(3,4)+' m y 1 m: <div class="expr">'+raizF(F(9,16)+op('+')+F(16,16))+op('=')+raizF(F(25,16))+op('=')+F(5,4)+'</div>m. Fíjate: sumamos <b>dentro</b> de la raíz, nunca por separado.'
+    ]);
+  }
+  function cargarErr(){
+    activar('mq-err');
+    playDemo([
+      '<span class="paso">⚠️ ¡Cuidado! Errores frecuentes</span> Ni la potencia ni la raíz se reparten sobre una <b>suma</b>:<br><br>(a + b)² ≠ a² + b² &nbsp;&nbsp;y&nbsp;&nbsp; √(a + b) ≠ √a + √b',
+      '<span class="paso">Compruébalo con números</span> √(9 + 16) = √25 = <span class="resalta">5</span>, pero √9 + √16 = 3 + 4 = <span class="resalta">7</span>. ¡Son distintos!',
+      '<span class="paso">El exponente negativo</span> <b>Invierte</b> la fracción, <i>no</i> la vuelve negativa: '+potF(2,3,'−2')+op('=')+F(9,4)+', nunca −9/4.',
+      '<span class="paso">Exponente cero</span> a<sup class="pot">0</sup> = <span class="resalta">1</span> (con a ≠ 0), no 0.',
+      '<span class="paso">La regla de oro</span> Raíces y potencias solo se separan cuando hay <b>producto</b> o <b>cociente</b>.'
+    ]);
+  }
+  document.getElementById('mq-pot').onclick=cargarPot;
+  document.getElementById('mq-rad').onclick=cargarRad;
+  document.getElementById('mq-pue').onclick=cargarPue;
+  document.getElementById('mq-geo').onclick=cargarGeo;
+  document.getElementById('mq-err').onclick=cargarErr;
+  cargarPot();
+}
+
 /* ================= PRACTICA ================= */
 function nuevoEjercicio(){
   actual=OPS[opActual].gen();
   intentoResuelto=false;
+  document.getElementById('prob-etiqueta').textContent=actual.tag||'Ejercicio';
+  var inst=actual.inst||'Resuelve y escribe el resultado más simple:';
+  if(actual.ansD===1){inst+=' <b>(Si te da un número entero, escríbelo arriba y pon 1 abajo.)</b>';}
+  document.getElementById('prob-instruccion').innerHTML=inst;
   document.getElementById('prob-expr').innerHTML=actual.expr;
   document.getElementById('in-num').value='';
   document.getElementById('in-den').value='';
