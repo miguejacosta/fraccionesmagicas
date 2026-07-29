@@ -7,6 +7,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
 <style>
 /* ============================================================
    FRACCIONES MÁGICAS · Máster College · Prof. Miguel Acosta
@@ -149,7 +152,7 @@ body{
 .op-simb{margin:0 .12em;font-weight:700;color:var(--rosa);}
 .root{font-size:1.15em;font-weight:700;}
 .radicand{border-top:3px solid currentColor;padding:3px 8px 0;margin-left:-3px;display:inline-flex;align-items:center;}
-.expr{font-size:2.4rem;font-weight:600;text-align:center;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:2px;}
+.expr{font-size:2rem;font-weight:600;text-align:center;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:2px;}
 sup.pot{font-size:.6em;font-weight:700;color:var(--morado);vertical-align:super;}
 
 /* ---------- Demo Aprende ---------- */
@@ -243,9 +246,28 @@ sup.pot{font-size:.6em;font-weight:700;color:var(--morado);vertical-align:super;
 .agr-lla{color:var(--morado);}
 .root .idx{font-size:.55em;font-weight:700;}
 
+/* ---------- Logros ---------- */
+.logro-toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);
+  background:linear-gradient(135deg,var(--morado),var(--rosa));color:#fff;padding:12px 22px;
+  border-radius:999px;font-weight:600;z-index:90;box-shadow:var(--sombra);
+  animation:toastIn .45s cubic-bezier(.18,.89,.32,1.28);}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,-30px);}to{opacity:1;transform:translate(-50%,0);}}
+.modal{position:fixed;inset:0;background:rgba(30,27,75,.45);display:grid;place-items:center;z-index:80;padding:16px;}
+.modal-card{background:#fff;border-radius:22px;padding:22px;max-width:540px;width:100%;
+  box-shadow:var(--sombra);max-height:82vh;overflow:auto;animation:pop .35s ease;}
+.lista-logros{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;}
+.logro-item{background:#faf5ff;border-radius:14px;padding:12px;text-align:center;display:flex;flex-direction:column;gap:2px;}
+.logro-item .lemoji{font-size:1.9rem;}
+.logro-item small{color:#8b7fae;font-size:.72rem;}
+.logro-item.bloqueado{filter:grayscale(1);opacity:.5;}
+
+/* Recomendación de práctica inteligente */
+.reco{background:rgba(255,255,255,.92);border-radius:18px;padding:12px 18px;margin-bottom:14px;
+  box-shadow:var(--sombra);font-weight:500;text-align:center;border:3px dashed var(--turquesa);}
+
 @media(max-width:520px){
   .hero h1{font-size:1.9rem;}
-  .expr{font-size:1.9rem;}
+  .expr{font-size:1.55rem;}
   .stat{min-width:56px;padding:5px 8px;}
   .hud{gap:8px;}
 }
@@ -268,7 +290,7 @@ sup.pot{font-size:.6em;font-weight:700;color:var(--morado);vertical-align:super;
       <form class="form-inicio" id="form-inicio">
         <div class="campo">
           <label for="nombre">✏️ Escribe tu nombre completo</label>
-          <input type="text" id="nombre" placeholder="Ej: Ana María Rodríguez" required autocomplete="off">
+          <input type="text" id="nombre" placeholder="Ej: Miguel Jose Acosta" required autocomplete="off">
         </div>
         <div class="campo">
           <label for="curso">🎒 ¿En qué curso estás?</label>
@@ -295,12 +317,15 @@ sup.pot{font-size:.6em;font-weight:700;color:var(--morado);vertical-align:super;
         <div class="stat"><b id="s-precision">100%</b><span>🎯 Precisión</span></div>
         <div class="stat"><b id="s-puntos">0</b><span>⭐ Puntos</span></div>
       </div>
+      <button class="btn ghost btn-sonido" onclick="toggleSonido()" title="Activar o silenciar sonidos">🔊</button>
+      <button class="btn ghost" onclick="verLogros()" title="Mis logros">🎖️</button>
       <button class="btn naranja" onclick="terminarSesion()">🏁 Terminar</button>
     </div>
 
     <div class="banner-nuevo">🎉 <b>¡Llegaron temas nuevos!</b> Ahora también puedes practicar
       <b>🚦 Polinomios aritméticos</b> y <b>📐 las propiedades de la potenciación y la radicación</b>,
       tal como en las guías que trabajamos en clase. ¡Y lo de siempre sigue aquí para que repases! 💜</div>
+    <div class="reco" id="reco" style="display:none;"></div>
     <h2 class="titulo-seccion">Elige un tema para practicar 👇</h2>
     <div class="grid-ops" id="grid-ops"></div>
     <p class="pie">Consejo: primero mira la pestaña <b>Aprende</b> y luego pasa a <b>Practica</b>. ¡Y siempre simplifica! ✨</p>
@@ -320,10 +345,11 @@ sup.pot{font-size:.6em;font-weight:700;color:var(--morado);vertical-align:super;
 
     <div style="text-align:center;margin-bottom:8px;">
       <button class="btn ghost" onclick="irMenu()">⬅️ Menú</button>
+      <button class="btn ghost btn-sonido" onclick="toggleSonido()" title="Activar o silenciar sonidos">🔊</button>
     </div>
     <h2 class="titulo-seccion" id="act-titulo">Operación</h2>
 
-    <div class="tabs">
+    <div class="tabs" id="act-tabs">
       <div class="tab activa" id="tab-aprende" onclick="cambiarTab('aprende')">📖 Aprende</div>
       <div class="tab" id="tab-practica" onclick="cambiarTab('practica')">🎮 Practica</div>
     </div>
@@ -352,8 +378,8 @@ sup.pot{font-size:.6em;font-weight:700;color:var(--morado);vertical-align:super;
           </div>
           <div class="acciones">
             <button class="btn verde" id="btn-comprobar" onclick="comprobar()">✅ Comprobar</button>
-            <button class="btn ghost" onclick="mostrarPista()">💡 Pista</button>
-            <button class="btn ghost" onclick="verSolucion()">👀 Ver solución</button>
+            <button class="btn ghost" id="btn-pista" onclick="mostrarPista()">💡 Pista</button>
+            <button class="btn ghost" id="btn-sol" onclick="verSolucion()">👀 Ver solución</button>
           </div>
           <div class="feedback" id="feedback"></div>
           <div class="acciones" id="acc-siguiente" style="display:none;">
@@ -379,6 +405,7 @@ sup.pot{font-size:.6em;font-weight:700;color:var(--morado);vertical-align:super;
       <p id="res-mensaje" style="font-size:1.1rem;color:var(--morado);font-weight:600;"></p>
       <p class="aviso-registro">📋 Tu progreso fue registrado para tu profesor Miguel Acosta. ¡Sigue practicando!</p>
       <div class="acciones" style="margin-top:18px;">
+        <button class="btn turq" id="btn-repaso" style="display:none;" onclick="repasarErrores()">🔁 Repasar los que fallé</button>
         <button class="btn primary grande" onclick="reiniciar()">🔄 Practicar de nuevo</button>
       </div>
     </div>
@@ -406,14 +433,19 @@ function fracEqual(n1,d1,n2,d2){return n1*d2===n2*d1;}
 function ri(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
 function pick(a){return a[ri(0,a.length-1)];}
 
-/* Render de una fracción como HTML */
+/* ====== Render matemático con LaTeX (KaTeX) ======
+   Cada helper devuelve un fragmento \( ... \); al pintarlo,
+   los fragmentos pegados se fusionan en una sola expresión. */
 function F(n,d){
-  if(d===1){return '<span class="int">'+n+'</span>';}
+  if(d===1){return '\\('+n+'\\)';}
   var s='';
-  if(n<0){s='<span class="sign">−</span>';n=-n;}
-  return s+'<span class="frac"><span class="num">'+n+'</span><span class="bar"></span><span class="den">'+d+'</span></span>';
+  if(n<0){s='-';n=-n;}
+  return '\\('+s+'\\dfrac{'+n+'}{'+d+'}\\)';
 }
-function op(sym){return '<span class="op-simb">'+sym+'</span>';}
+function op(sym){
+  var m={'×':'\\times','÷':'\\div','−':'-','·':'\\cdot','→':'\\;\\rightarrow\\;'};
+  return '\\('+(m[sym]||sym)+'\\)';
+}
 
 /* Operaciones con fracciones (devuelven [num,den] ya simplificado) */
 function fAdd(n1,d1,n2,d2){return simplify(n1*d2+n2*d1,d1*d2);}
@@ -421,20 +453,215 @@ function fSub(n1,d1,n2,d2){return simplify(n1*d2-n2*d1,d1*d2);}
 function fMul(n1,d1,n2,d2){return simplify(n1*n2,d1*d2);}
 function coprimos(maxN,maxD){var a,b;do{a=ri(1,maxN);b=ri(2,maxD);}while(gcd(a,b)!==1);return [a,b];}
 
-/* Render de signos de agrupación, potencias y raíces con índice */
-function par(x){return '<span class="agr agr-par">(</span>'+x+'<span class="agr agr-par">)</span>';}
-function cor(x){return '<span class="agr agr-cor">[</span>'+x+'<span class="agr agr-cor">]</span>';}
-function lla(x){return '<span class="agr agr-lla">{</span>'+x+'<span class="agr agr-lla">}</span>';}
-function potF(a,b,e){return par(F(a,b))+'<sup class="pot">'+e+'</sup>';}
-function raizF(inner,idx){return '<span class="root">'+(idx===3?'<sup class="idx">3</sup>':'')+'√</span><span class="radicand">'+inner+'</span>';}
+/* Signos de agrupación coloreados (jerarquía), potencias y raíces */
+function par(x){return '\\(\\textcolor{#db2777}{\\bigl(}\\)'+x+'\\(\\textcolor{#db2777}{\\bigr)}\\)';}
+function cor(x){return '\\(\\textcolor{#2563eb}{\\Bigl[}\\)'+x+'\\(\\textcolor{#2563eb}{\\Bigr]}\\)';}
+function lla(x){return '\\(\\textcolor{#7c3aed}{\\biggl\\{}\\)'+x+'\\(\\textcolor{#7c3aed}{\\biggr\\}}\\)';}
+function potE(e){
+  e=String(e).replace('−','-');
+  if(e.indexOf('/')>-1){var p=e.split('/');return '\\frac{'+p[0]+'}{'+p[1]+'}';}
+  return e;
+}
+function potF(a,b,e){return '\\(\\Bigl(\\dfrac{'+a+'}{'+b+'}\\Bigr)^{'+potE(e)+'}\\)';}
+function raizF(inner,idx){
+  var raw=String(inner).replace(/\\\(|\\\)/g,'');
+  return '\\(\\sqrt'+(idx===3?'[3]':'')+'{'+raw+'}\\)';
+}
+
+/* Pinta HTML con matemáticas: fusiona fragmentos pegados y llama a KaTeX */
+function ponerMate(el,html){
+  el.innerHTML=html.replace(/\\\)\\\(/g,'');
+  renderMates(el);
+}
+function renderMates(el){
+  if(window.renderMathInElement){
+    renderMathInElement(el,{delimiters:[{left:'\\(',right:'\\)',display:false}],throwOnError:false});
+  }
+}
 
 /* ================= ESTADO ================= */
 var estudiante={nombre:'',curso:''};
-var sesion={inicio:0,correctos:0,intentos:0,xp:0,racha:0,mejorRacha:0,porOp:{},enviado:false};
+var sesion={inicio:0,correctos:0,intentos:0,xp:0,racha:0,mejorRacha:0,porOp:{},fallosOp:{},enviado:false};
 var actual=null;      // ejercicio actual
 var opActual=null;    // clave de operación actual
 var intentoResuelto=false;
 var timerInt=null;
+var perfil=null;      // progreso guardado del estudiante (logros, temas, récord)
+var reto={activo:false,fin:0,int:null,aciertos:0};
+var modoRepaso=false, repasoQueue=[];
+
+/* ---------- Guardado local (por estudiante) ---------- */
+function lsGet(k){try{return JSON.parse(localStorage.getItem(k));}catch(e){return null;}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+function claveEst(suf){return 'fm:'+estudiante.nombre.trim().toLowerCase().replace(/\s+/g,' ')+':'+suf;}
+function guardarPerfil(){if(perfil){lsSet(claveEst('perfil'),perfil);}}
+
+/* ---------- Nivel de dificultad progresivo (sube con la racha) ---------- */
+function nivelActual(){return 1+(sesion.racha>=3?1:0)+(sesion.racha>=6?1:0);}
+
+/* ---------- Sonidos (WebAudio, sin archivos) ---------- */
+var audioCtx=null;
+function sonido(tipo){
+  if(localStorage.getItem('fm:sonido')==='0'){return;}
+  try{
+    if(!audioCtx){audioCtx=new (window.AudioContext||window.webkitAudioContext)();}
+    if(audioCtx.state==='suspended'){audioCtx.resume();}
+    var notas={ok:[[523,0],[659,.09]],racha:[[523,0],[659,.08],[784,.16]],
+               mal:[[196,0]],logro:[[523,0],[659,.1],[784,.2],[1047,.3]],fin:[[392,0],[330,.18]]}[tipo]||[];
+    notas.forEach(function(n){
+      var o=audioCtx.createOscillator(),g=audioCtx.createGain();
+      o.type=(tipo==='mal')?'sawtooth':'sine';
+      o.frequency.value=n[0];
+      var t0=audioCtx.currentTime+n[1];
+      g.gain.setValueAtTime(.0001,t0);
+      g.gain.exponentialRampToValueAtTime(.16,t0+.02);
+      g.gain.exponentialRampToValueAtTime(.0001,t0+(tipo==='mal'?.25:.16));
+      o.connect(g);g.connect(audioCtx.destination);
+      o.start(t0);o.stop(t0+.35);
+    });
+  }catch(e){}
+}
+function toggleSonido(){
+  var apagado=localStorage.getItem('fm:sonido')==='0';
+  localStorage.setItem('fm:sonido',apagado?'1':'0');
+  refrescarSonido();
+  if(apagado){sonido('ok');}
+}
+function refrescarSonido(){
+  var off=localStorage.getItem('fm:sonido')==='0';
+  document.querySelectorAll('.btn-sonido').forEach(function(b){b.textContent=off?'🔇':'🔊';});
+}
+
+/* ---------- Insignias y logros ---------- */
+var LOGROS=[
+  {id:'primero',emoji:'🎯',nombre:'¡Primer acierto!',desc:'Resuelve tu primer ejercicio'},
+  {id:'racha5',emoji:'🔥',nombre:'En llamas',desc:'Racha de 5 seguidos'},
+  {id:'racha10',emoji:'🌋',nombre:'Imparable',desc:'Racha de 10 seguidos'},
+  {id:'cien',emoji:'💯',nombre:'Centenario',desc:'100 puntos en una sesión'},
+  {id:'explorador',emoji:'🧭',nombre:'Explorador',desc:'Practica los 8 temas'},
+  {id:'veloz',emoji:'⚡',nombre:'Rayo veloz',desc:'10 aciertos en un reto contrarreloj'},
+  {id:'constante',emoji:'🏋️',nombre:'Constancia',desc:'Termina 5 sesiones'},
+  {id:'fenix',emoji:'🕊️',nombre:'Ave fénix',desc:'Completa un repaso de errores'}
+];
+function award(id){
+  if(!perfil||perfil.logros[id]){return;}
+  var l=null;LOGROS.forEach(function(x){if(x.id===id){l=x;}});
+  if(!l){return;}
+  perfil.logros[id]=true;guardarPerfil();
+  sonido('logro');lanzarConfeti();
+  var t=document.createElement('div');t.className='logro-toast';
+  t.innerHTML='🎖️ ¡Logro desbloqueado! '+l.emoji+' <b>'+l.nombre+'</b>';
+  document.body.appendChild(t);
+  setTimeout(function(){t.remove();},3500);
+}
+function verLogros(){
+  var tengo=(perfil&&perfil.logros)||{};
+  var html='<div class="modal-card"><h3 style="color:var(--morado);margin-bottom:12px;">🎖️ Mis logros</h3><div class="lista-logros">';
+  LOGROS.forEach(function(l){
+    var t=!!tengo[l.id];
+    html+='<div class="logro-item'+(t?'':' bloqueado')+'"><span class="lemoji">'+l.emoji+'</span><b>'+l.nombre+'</b><small>'+l.desc+'</small></div>';
+  });
+  html+='</div><div style="text-align:center;margin-top:14px;"><button class="btn primary" onclick="cerrarLogros()">Cerrar</button></div></div>';
+  var m=document.createElement('div');m.className='modal';m.id='modal-logros';m.innerHTML=html;
+  m.onclick=function(ev){if(ev.target===m){cerrarLogros();}};
+  document.body.appendChild(m);
+}
+function cerrarLogros(){var m=document.getElementById('modal-logros');if(m){m.remove();}}
+
+/* ---------- Práctica inteligente (recomienda el tema más flojo) ---------- */
+function actualizarReco(){
+  var el=document.getElementById('reco');
+  if(!el){return;}
+  var peor=null,peorP=101;
+  if(perfil){
+    Object.keys(OPS).forEach(function(k){
+      if(OPS[k].reto){return;}
+      var t=perfil.temas[k];
+      if(t&&t.int>=4){
+        var p=Math.round(t.ok/t.int*100);
+        if(p<75&&p<peorP){peorP=p;peor=k;}
+      }
+    });
+  }
+  if(peor){
+    el.style.display='';
+    el.innerHTML='💪 <b>Práctica inteligente:</b> tu tema más flojo es <b>'+OPS[peor].emoji+' '+OPS[peor].nombre+'</b> ('+peorP+'% de acierto). '+
+      '<button class="btn turq" style="margin-left:6px;" onclick="abrirActividad(\''+peor+'\')">¡A repasarlo! 🚀</button>';
+  }else{
+    el.style.display='none';
+  }
+}
+
+/* ---------- Reto contrarreloj (90 segundos) ---------- */
+function genReto(){
+  var g=pick([genSuma,genResta,genMult,genDiv,genPot,genRad,genPoliN1]);
+  var e=g();
+  e.tag='⏱️ Reto';
+  e.inst='¡Rápido! Resuelve y sigue con el próximo:';
+  return e;
+}
+function iniciarReto(){
+  reto.activo=true;reto.aciertos=0;reto.fin=Date.now()+90000;
+  reto.int=setInterval(tickReto,300);
+  tickReto();
+}
+function tickReto(){
+  var rest=Math.max(0,reto.fin-Date.now());
+  document.getElementById('act-titulo').innerHTML='⏱️ Reto contrarreloj · '+fmt(rest)+' · ✅ '+reto.aciertos;
+  if(rest<=0){finalizarReto();}
+}
+function detenerReto(){
+  if(reto.int){clearInterval(reto.int);reto.int=null;}
+  reto.activo=false;
+}
+function finalizarReto(){
+  if(!reto.activo){return;}
+  detenerReto();
+  document.getElementById('act-titulo').innerHTML='⏱️ ¡Se acabó el tiempo!';
+  document.getElementById('in-num').disabled=true;
+  document.getElementById('in-den').disabled=true;
+  document.getElementById('btn-comprobar').disabled=true;
+  document.getElementById('acc-siguiente').style.display='none';
+  var msg='⏱️ ¡Tiempo! Conseguiste <b>'+reto.aciertos+'</b> aciertos.';
+  if(perfil){
+    if(reto.aciertos>(perfil.record||0)){perfil.record=reto.aciertos;guardarPerfil();msg+=' 🏆 ¡Nuevo récord personal!';}
+    else if(perfil.record){msg+=' Tu récord es <b>'+perfil.record+'</b>.';}
+  }
+  if(reto.aciertos>=10){award('veloz');}
+  msg+='<div class="acciones" style="margin-top:12px;"><button class="btn naranja" onclick="abrirActividad(\'reto\')">🔄 Otra vez</button><button class="btn ghost" onclick="irMenu()">⬅️ Menú</button></div>';
+  var fb=document.getElementById('feedback');
+  fb.className='feedback ok';
+  ponerMate(fb,msg);
+  sonido('fin');
+}
+
+/* ---------- Repasar mis errores ---------- */
+function repasarErrores(){
+  repasoQueue=[];
+  Object.keys(sesion.fallosOp).forEach(function(k){
+    var veces=Math.min(sesion.fallosOp[k],3);
+    for(var i=0;i<veces;i++){repasoQueue.push(k);}
+  });
+  repasoQueue=repasoQueue.slice(0,8);
+  if(!repasoQueue.length){return;}
+  // barajar
+  for(var i=repasoQueue.length-1;i>0;i--){var j=ri(0,i);var t=repasoQueue[i];repasoQueue[i]=repasoQueue[j];repasoQueue[j]=t;}
+  modoRepaso=true;
+  siguienteRepaso();
+}
+function siguienteRepaso(){
+  if(!modoRepaso){return;}
+  if(!repasoQueue.length){
+    modoRepaso=false;
+    award('fenix');
+    sonido('racha');
+    irMenu();
+    return;
+  }
+  var k=repasoQueue.shift();
+  abrirActividad(k);
+  cambiarTab('practica');
+}
 
 /* ================= PANTALLAS ================= */
 function mostrar(id){
@@ -460,12 +687,15 @@ var OPS={
   poli:{nombre:'Polinomios aritméticos',emoji:'🚦',color:'#0d9488',desc:'Jerarquía de operaciones',nuevo:true,
     gen:genPoli, aprende:aprendePoli},
   prop:{nombre:'Propiedades: potencia y raíz',emoji:'📐',color:'#1e40af',desc:'Propiedades y geometría',nuevo:true,
-    gen:genProp, aprende:aprendeProp}
+    gen:genProp, aprende:aprendeProp},
+  reto:{nombre:'Reto contrarreloj',emoji:'⏱️',color:'#f97316',desc:'90 segundos · ¡a toda máquina!',nuevo:true,reto:true,
+    gen:genReto, aprende:function(){}}
 };
 
 /* ================= GENERADORES DE EJERCICIOS ================= */
 function genSuma(){
-  var b=ri(2,10),d=ri(2,9),a=ri(1,9),c=ri(1,9);
+  var L=nivelActual(),MD=[6,10,14][L-1],MN=[5,9,12][L-1];
+  var b=ri(2,MD),d=ri(2,MD-1),a=ri(1,MN),c=ri(1,MN);
   var num=a*d+c*b, den=b*d, r=simplify(num,den);
   return {
     expr:F(a,b)+op('+')+F(c,d),
@@ -480,7 +710,8 @@ function genSuma(){
   };
 }
 function genResta(){
-  var b=ri(2,10),d=ri(2,9),a=ri(1,9),c=ri(1,9);
+  var L=nivelActual(),MD=[6,10,14][L-1],MN=[5,9,12][L-1];
+  var b=ri(2,MD),d=ri(2,MD-1),a=ri(1,MN),c=ri(1,MN);
   // aseguramos resultado positivo
   if(a*d < c*b){var t=a;a=c;c=t;var t2=b;b=d;d=t2;}
   var num=a*d-c*b, den=b*d, r=simplify(num,den);
@@ -497,7 +728,8 @@ function genResta(){
   };
 }
 function genMult(){
-  var a=ri(1,9),b=ri(2,10),c=ri(1,9),d=ri(2,10);
+  var L=nivelActual(),MD=[6,10,14][L-1],MN=[5,9,12][L-1];
+  var a=ri(1,MN),b=ri(2,MD),c=ri(1,MN),d=ri(2,MD);
   var num=a*c,den=b*d,r=simplify(num,den);
   return {
     expr:F(a,b)+op('×')+F(c,d),
@@ -511,7 +743,8 @@ function genMult(){
   };
 }
 function genDiv(){
-  var a=ri(1,9),b=ri(2,10),c=ri(1,9),d=ri(2,10);
+  var L=nivelActual(),MD=[6,10,14][L-1],MN=[5,9,12][L-1];
+  var a=ri(1,MN),b=ri(2,MD),c=ri(1,MN),d=ri(2,MD);
   var num=a*d,den=b*c,r=simplify(num,den);
   return {
     expr:F(a,b)+op('÷')+F(c,d),
@@ -525,12 +758,14 @@ function genDiv(){
   };
 }
 function genPot(){
+  var L=nivelActual();
   var base=[[1,2],[2,3],[1,3],[3,4],[2,5],[1,4],[3,5],[1,5],[2,7],[3,2]];
-  var bs=pick(base); var a=bs[0],b=bs[1]; var n=pick([2,2,3]);
+  if(L===3){base=base.concat([[4,5],[5,6],[2,9],[5,2]]);}
+  var bs=pick(base); var a=bs[0],b=bs[1]; var n=pick(L===1?[2]:(L===2?[2,2,3]:[2,3,3]));
   var num=Math.pow(a,n),den=Math.pow(b,n),r=simplify(num,den);
   var expA=Array(n).fill(a).join('×'), expB=Array(n).fill(b).join('×');
   return {
-    expr:'<span class="frac"><span class="num">'+a+'</span><span class="bar"></span><span class="den">'+b+'</span></span><sup class="pot">'+n+'</sup>',
+    expr:potF(a,b,n),
     ansN:r[0],ansD:r[1],
     hint:'El exponente se aplica <b>arriba y abajo</b>: (a/b)ⁿ = aⁿ / bⁿ.',
     sol:[
@@ -541,10 +776,11 @@ function genPot(){
   };
 }
 function genRad(){
-  var p=ri(1,7),q=ri(2,8); if(p===q){q++;}
+  var L=nivelActual();
+  var p=ri(1,[5,7,10][L-1]),q=ri(2,[6,8,12][L-1]); if(p===q){q++;}
   var num=p*p,den=q*q,r=simplify(p,q);
   return {
-    expr:'<span class="root">√</span><span class="radicand">'+F(num,den)+'</span>',
+    expr:raizF(F(num,den)),
     ansN:r[0],ansD:r[1],
     hint:'La raíz de una fracción = <b>raíz del numerador / raíz del denominador</b>. Busca los cuadrados perfectos.',
     sol:[
@@ -557,9 +793,11 @@ function genRad(){
 
 /* ---------- POLINOMIOS ARITMÉTICOS (guía de clase) ---------- */
 function genPoli(){
-  var r=Math.random();
-  if(r<0.35){return genPoliN1();}
-  if(r<0.7){return genPoliN2();}
+  var L=nivelActual(),r=Math.random();
+  if(L===1){return (r<0.7)?genPoliN1():genPoliN2();}
+  if(L===2){if(r<0.35){return genPoliN1();}if(r<0.7){return genPoliN2();}return genPoliN3();}
+  if(r<0.2){return genPoliN1();}
+  if(r<0.55){return genPoliN2();}
   return genPoliN3();
 }
 function genPoliN1(){
@@ -769,7 +1007,7 @@ function genPropPuente(){
   var num=Math.pow(e.r[0],e.m),den=Math.pow(e.r[1],e.m),res=simplify(num,den);
   return {
     tag:'El puente 🌉',
-    expr:par(F(e.A,e.B))+'<sup class="pot">'+e.m+'/'+e.n+'</sup>',
+    expr:potF(e.A,e.B,e.m+'/'+e.n),
     ansN:res[0],ansD:res[1],
     hint:'🌉 El puente: el <b>denominador</b> del exponente es el <b>índice de la raíz</b> y el numerador es la potencia. Conviene sacar primero la raíz.',
     sol:[
@@ -788,7 +1026,7 @@ function genPropGeo(){
     return {
       tag:'Geometría 📐',
       inst:'📐 Un cuadrado tiene lado '+F(a,b)+' m. ¿Cuál es su área (en m²)?',
-      expr:'<span class="int">ℓ =</span> '+F(a,b)+'<span class="int"> m</span>'+op('→')+'<span class="int">A = ¿?</span>',
+      expr:'\\(\\ell=\\)'+F(a,b)+'\\(\\,\\text{m}\\;\\rightarrow\\;A=\\text{¿?}\\)',
       ansN:res[0],ansD:res[1],
       hint:'Área del cuadrado: <b>A = ℓ²</b>. Eleva el lado al cuadrado, arriba y abajo.',
       sol:[
@@ -804,7 +1042,7 @@ function genPropGeo(){
     return {
       tag:'Geometría 📐',
       inst:'📐 Un cuadrado tiene área '+F(a*a,b*b)+' m². ¿Cuánto mide su lado (en m)?',
-      expr:'<span class="int">A =</span> '+F(a*a,b*b)+'<span class="int"> m²</span>'+op('→')+'<span class="int">ℓ = ¿?</span>',
+      expr:'\\(A=\\)'+F(a*a,b*b)+'\\(\\,\\text{m}^{2}\\;\\rightarrow\\;\\ell=\\text{¿?}\\)',
       ansN:res[0],ansD:res[1],
       hint:'El lado se recupera con la operación <b>inversa</b>: ℓ = √A (raíz de arriba y de abajo).',
       sol:[
@@ -820,7 +1058,7 @@ function genPropGeo(){
     return {
       tag:'Geometría 📐',
       inst:'📐 Un tanque cúbico tiene arista '+F(a,b)+' m. ¿Cuál es su volumen (en m³)?',
-      expr:'<span class="int">a =</span> '+F(a,b)+'<span class="int"> m</span>'+op('→')+'<span class="int">V = ¿?</span>',
+      expr:'\\(a=\\)'+F(a,b)+'\\(\\,\\text{m}\\;\\rightarrow\\;V=\\text{¿?}\\)',
       ansN:res[0],ansD:res[1],
       hint:'Volumen del cubo: <b>V = a³</b>. Eleva la arista al cubo, arriba y abajo.',
       sol:[
@@ -836,7 +1074,7 @@ function genPropGeo(){
     return {
       tag:'Geometría 📐',
       inst:'📐 Un tanque cúbico guarda '+F(a*a*a,b*b*b)+' m³ de agua. ¿Cuánto mide su arista (en m)?',
-      expr:'<span class="int">V =</span> '+F(a*a*a,b*b*b)+'<span class="int"> m³</span>'+op('→')+'<span class="int">a = ¿?</span>',
+      expr:'\\(V=\\)'+F(a*a*a,b*b*b)+'\\(\\,\\text{m}^{3}\\;\\rightarrow\\;a=\\text{¿?}\\)',
       ansN:res[0],ansD:res[1],
       hint:'La arista se recupera con la raíz cúbica: <b>a = ∛V</b>. ¡Una operación deshace a la otra!',
       sol:[
@@ -854,7 +1092,7 @@ function genPropGeo(){
   return {
     tag:'Geometría 📐',
     inst:'📐 Un triángulo rectángulo tiene catetos '+F(c1[0],c1[1])+' m y '+F(c2[0],c2[1])+' m. ¿Cuánto mide la hipotenusa (en m)?',
-    expr:'<span class="int">c =</span> '+raizF(potF(c1[0],c1[1],2)+op('+')+potF(c2[0],c2[1],2)),
+    expr:'\\(c=\\)'+raizF(potF(c1[0],c1[1],2)+op('+')+potF(c2[0],c2[1],2)),
     ansN:res[0],ansD:res[1],
     hint:'Pitágoras: <b>c = √(a² + b²)</b>. Eleva los catetos al cuadrado, <b>suma dentro de la raíz</b> y al final extrae la raíz.',
     sol:[
@@ -873,6 +1111,8 @@ document.getElementById('form-inicio').addEventListener('submit',function(e){
   if(!nom){return;}
   estudiante.nombre=nom;
   estudiante.curso=document.getElementById('curso').value;
+  lsSet('fm:ultimo',{nombre:nom,curso:estudiante.curso});
+  perfil=lsGet(claveEst('perfil'))||{temas:{},sesiones:0,record:0,logros:{}};
   sesion.inicio=Date.now();
   var inicial=nom.charAt(0).toUpperCase();
   document.getElementById('av-inicial').textContent=inicial;
@@ -881,6 +1121,7 @@ document.getElementById('form-inicio').addEventListener('submit',function(e){
   document.getElementById('hud-nombre2').textContent=nom.split(' ')[0];
   construirMenu();
   arrancarTimer();
+  actualizarReco();
   mostrar('menu');
 });
 
@@ -898,16 +1139,31 @@ function construirMenu(){
     g.appendChild(div);
   });
 }
-function irMenu(){mostrar('menu');}
+function irMenu(){
+  detenerReto();
+  modoRepaso=false;repasoQueue=[];
+  actualizarReco();
+  mostrar('menu');
+}
 
 /* ================= ACTIVIDAD ================= */
 function abrirActividad(k){
   opActual=k;
   var o=OPS[k];
   if(!sesion.porOp[k]){sesion.porOp[k]=0;}
+  detenerReto();
+  var esReto=!!o.reto;
+  document.getElementById('act-tabs').style.display=esReto?'none':'';
+  document.getElementById('btn-pista').style.display=esReto?'none':'';
+  document.getElementById('btn-sol').style.display=esReto?'none':'';
   document.getElementById('act-titulo').innerHTML=o.emoji+' '+o.nombre;
-  cambiarTab('aprende');
-  o.aprende();      // arma la pestaña Aprende
+  if(esReto){
+    cambiarTab('practica');
+    iniciarReto();
+  }else{
+    cambiarTab('aprende');
+    o.aprende();    // arma la pestaña Aprende
+  }
   nuevoEjercicio(); // arma el primer ejercicio de Practica
   mostrar('actividad');
 }
@@ -927,7 +1183,7 @@ function playDemo(pasos){
   function render(){
     var d=document.createElement('div');
     d.className='demo-step pop';
-    d.innerHTML=pasos[i];
+    ponerMate(d,pasos[i]);
     stage.appendChild(d);
     i++;
     ctrls.innerHTML='';
@@ -1077,7 +1333,7 @@ function aprendePot(){
     var num=Math.pow(a,n),den=Math.pow(b,n),r=simplify(num,den);
     var expA=Array(n).fill(a).join('×'),expB=Array(n).fill(b).join('×');
     playDemo([
-      '<span class="paso">Vamos a elevar</span> <div class="expr"><span class="frac"><span class="num">'+a+'</span><span class="bar"></span><span class="den">'+b+'</span></span><sup class="pot">'+n+'</sup></div>',
+      '<span class="paso">Vamos a elevar</span> <div class="expr">'+potF(a,b,n)+'</div>',
       '<span class="paso">Regla</span> El exponente '+n+' se reparte: va al numerador Y al denominador.',
       '<span class="paso">Desarrollamos</span> Numerador: '+expA+' = <span class="resalta">'+num+'</span>',
       '<span class="paso">Y abajo</span> Denominador: '+expB+' = <span class="resalta">'+den+'</span>',
@@ -1096,9 +1352,9 @@ function aprendeRad(){
     var p=ri(1,6),q=ri(2,7);if(p===q){q++;}
     var num=p*p,den=q*q,r=simplify(p,q);
     playDemo([
-      '<span class="paso">Vamos a sacar la raíz</span> <div class="expr"><span class="root">√</span><span class="radicand">'+F(num,den)+'</span></div>',
+      '<span class="paso">Vamos a sacar la raíz</span> <div class="expr">'+raizF(F(num,den))+'</div>',
       '<span class="paso">Regla</span> La raíz de una fracción se reparte: raíz del numerador entre raíz del denominador.',
-      '<span class="paso">Separamos</span> <div class="expr"><span class="frac"><span class="num"><span class="root">√</span><span class="radicand">'+num+'</span></span><span class="bar"></span><span class="den"><span class="root">√</span><span class="radicand">'+den+'</span></span></span></div>',
+      '<span class="paso">Separamos</span> <div class="expr">\\(\\dfrac{\\sqrt{'+num+'}}{\\sqrt{'+den+'}}\\)</div>',
       '<span class="paso">Buscamos cuadrados perfectos</span> √'+num+' = <span class="resalta">'+p+'</span> &nbsp;y&nbsp; √'+den+' = <span class="resalta">'+q+'</span>',
       '<span class="paso">Resultado</span> <div class="expr">'+F(r[0],r[1])+'</div>'
     ]);
@@ -1160,7 +1416,7 @@ function aprendeProp(){
     activar('mq-pot');
     playDemo([
       '<span class="paso">Dos operaciones inversas</span> Piensa en un <b>cuadrado</b>: si conoces su lado, <b>elevas al cuadrado</b> (potenciación) para obtener el área; si conoces el área, <b>extraes la raíz</b> (radicación) para recuperar el lado. ¡Van siempre de la mano!',
-      '<span class="paso">Propiedades de la potenciación</span><div style="text-align:left;line-height:2;">a<sup class="pot">m</sup> · a<sup class="pot">n</sup> = a<sup class="pot">m+n</sup> &nbsp;(al multiplicar se <b>suman</b>)<br>a<sup class="pot">m</sup> ÷ a<sup class="pot">n</sup> = a<sup class="pot">m−n</sup> &nbsp;(al dividir se <b>restan</b>)<br>(a<sup class="pot">m</sup>)<sup class="pot">n</sup> = a<sup class="pot">m·n</sup> &nbsp;(potencia de potencia: se multiplican)<br>(a/b)<sup class="pot">n</sup> = a<sup class="pot">n</sup>/b<sup class="pot">n</sup> &nbsp;(arriba y abajo)<br>a<sup class="pot">0</sup> = 1 &nbsp;(¡siempre vale 1!)<br>(p/q)<sup class="pot">−n</sup> = (q/p)<sup class="pot">n</sup> &nbsp;(el menos <b>invierte</b>)</div>',
+      '<span class="paso">Propiedades de la potenciación</span><div style="text-align:left;line-height:2.4;">\\(a^{m}\\cdot a^{n}=a^{m+n}\\) &nbsp;(al multiplicar se <b>suman</b>)<br>\\(a^{m}\\div a^{n}=a^{m-n}\\) &nbsp;(al dividir se <b>restan</b>)<br>\\((a^{m})^{n}=a^{m\\cdot n}\\) &nbsp;(potencia de potencia: se multiplican)<br>\\(\\bigl(\\tfrac{a}{b}\\bigr)^{n}=\\tfrac{a^{n}}{b^{n}}\\) &nbsp;(arriba y abajo)<br>\\(a^{0}=1\\) &nbsp;(¡siempre vale 1!)<br>\\(\\bigl(\\tfrac{p}{q}\\bigr)^{-n}=\\bigl(\\tfrac{q}{p}\\bigr)^{n}\\) &nbsp;(el menos <b>invierte</b>)</div>',
       '<span class="paso">Ejemplo de la guía</span> <div class="expr" style="font-size:1.7rem;">'+potF(2,3,4)+op('×')+potF(2,3,'−2')+op('÷')+potF(2,3,0)+'</div>Misma base: sumamos y restamos los exponentes: 4 + (−2) − 0 = <span class="resalta">2</span>.',
       '<span class="paso">Resultado</span> <div class="expr">'+potF(2,3,2)+op('=')+F(4,9)+'</div>Al multiplicar se <b>suman</b> exponentes, al dividir se <b>restan</b>, y toda potencia de exponente 0 vale <b>1</b>.'
     ]);
@@ -1168,7 +1424,7 @@ function aprendeProp(){
   function cargarRad(){
     activar('mq-rad');
     playDemo([
-      '<span class="paso">Propiedades de la radicación</span><div style="text-align:left;line-height:2;">√(x · y) = √x · √y &nbsp;(raíz de un producto)<br>√(x ÷ y) = √x ÷ √y &nbsp;(raíz de un cociente)<br>⚠️ ¡Solo con <b>producto</b> o <b>cociente</b>! Con suma o resta <b>no</b> se separa.</div>',
+      '<span class="paso">Propiedades de la radicación</span><div style="text-align:left;line-height:2.4;">\\(\\sqrt{x\\cdot y}=\\sqrt{x}\\cdot\\sqrt{y}\\) &nbsp;(raíz de un producto)<br>\\(\\sqrt{\\tfrac{x}{y}}=\\tfrac{\\sqrt{x}}{\\sqrt{y}}\\) &nbsp;(raíz de un cociente)<br>⚠️ ¡Solo con <b>producto</b> o <b>cociente</b>! Con suma o resta <b>no</b> se separa.</div>',
       '<span class="paso">Ejemplo de la guía</span> <div class="expr" style="font-size:1.7rem;">'+raizF(F(9,16)+op('×')+F(4,25))+'</div>',
       '<span class="paso">Separamos las raíces</span> '+raizF(F(9,16))+op('×')+raizF(F(4,25))+op('=')+F(3,4)+op('×')+F(2,5),
       '<span class="paso">Multiplicamos recto</span> <div class="expr">'+F(6,20)+op('=')+F(3,10)+'</div>',
@@ -1178,8 +1434,8 @@ function aprendeProp(){
   function cargarPue(){
     activar('mq-pue');
     playDemo([
-      '<span class="paso">El puente entre las dos 🌉</span> Todo radical se puede escribir como potencia y viceversa: <b>el denominador del exponente es el índice de la raíz</b> y el numerador es la potencia.<br><br>a<sup class="pot">m/n</sup> = ⁿ√(a<sup class="pot">m</sup>) &nbsp;&nbsp;y en particular&nbsp;&nbsp; a<sup class="pot">1/n</sup> = ⁿ√a',
-      '<span class="paso">Ejemplo de la guía</span> <div class="expr" style="font-size:1.7rem;">'+par(F(8,27))+'<sup class="pot">2/3</sup></div>El 3 (abajo) indica <b>raíz cúbica</b> y el 2 (arriba) indica <b>elevar al cuadrado</b>.',
+      '<span class="paso">El puente entre las dos 🌉</span> Todo radical se puede escribir como potencia y viceversa: <b>el denominador del exponente es el índice de la raíz</b> y el numerador es la potencia.<br><br>\\(a^{\\frac{m}{n}}=\\sqrt[n]{a^{m}}\\) &nbsp;&nbsp;y en particular&nbsp;&nbsp; \\(a^{\\frac{1}{n}}=\\sqrt[n]{a}\\)',
+      '<span class="paso">Ejemplo de la guía</span> <div class="expr" style="font-size:1.7rem;">'+potF(8,27,'2/3')+'</div>El 3 (abajo) indica <b>raíz cúbica</b> y el 2 (arriba) indica <b>elevar al cuadrado</b>.',
       '<span class="paso">Primero la raíz cúbica</span> '+raizF(F(8,27),3)+op('=')+F(2,3)+' &nbsp;(∛8 = 2 y ∛27 = 3)',
       '<span class="paso">Luego elevamos al cuadrado</span> <div class="expr">'+potF(2,3,2)+op('=')+F(4,9)+'</div>Conviene <b>extraer primero la raíz</b> y elevar al final: ¡los números quedan más pequeños!'
     ]);
@@ -1187,7 +1443,7 @@ function aprendeProp(){
   function cargarGeo(){
     activar('mq-geo');
     playDemo([
-      '<span class="paso">Geometría de bolsillo 📐</span><div style="text-align:left;line-height:2;">Cuadrado: A = ℓ² &nbsp;↔&nbsp; ℓ = √A<br>Cubo: V = a³ &nbsp;↔&nbsp; a = ∛V<br>Pitágoras: c = √(a² + b²)</div>',
+      '<span class="paso">Geometría de bolsillo 📐</span><div style="text-align:left;line-height:2.4;">Cuadrado: \\(A=\\ell^{2}\\;\\leftrightarrow\\;\\ell=\\sqrt{A}\\)<br>Cubo: \\(V=a^{3}\\;\\leftrightarrow\\;a=\\sqrt[3]{V}\\)<br>Pitágoras: \\(c=\\sqrt{a^{2}+b^{2}}\\)</div>',
       '<span class="paso">Del lado al área</span> Un mosaico cuadrado tiene lado '+F(3,5)+' m. Su área se obtiene <b>elevando al cuadrado</b>: <div class="expr">'+potF(3,5,2)+op('=')+F(9,25)+'</div>m².',
       '<span class="paso">Del volumen a la arista</span> Un tanque cúbico guarda '+F(8,27)+' m³ de agua. Su arista se recupera <b>extrayendo la raíz cúbica</b>: <div class="expr">'+raizF(F(8,27),3)+op('=')+F(2,3)+'</div>m. ¡Una operación deshace a la otra!',
       '<span class="paso">Pitágoras con fracciones</span> Catetos de '+F(3,4)+' m y 1 m: <div class="expr">'+raizF(F(9,16)+op('+')+F(16,16))+op('=')+raizF(F(25,16))+op('=')+F(5,4)+'</div>m. Fíjate: sumamos <b>dentro</b> de la raíz, nunca por separado.'
@@ -1196,10 +1452,10 @@ function aprendeProp(){
   function cargarErr(){
     activar('mq-err');
     playDemo([
-      '<span class="paso">⚠️ ¡Cuidado! Errores frecuentes</span> Ni la potencia ni la raíz se reparten sobre una <b>suma</b>:<br><br>(a + b)² ≠ a² + b² &nbsp;&nbsp;y&nbsp;&nbsp; √(a + b) ≠ √a + √b',
-      '<span class="paso">Compruébalo con números</span> √(9 + 16) = √25 = <span class="resalta">5</span>, pero √9 + √16 = 3 + 4 = <span class="resalta">7</span>. ¡Son distintos!',
-      '<span class="paso">El exponente negativo</span> <b>Invierte</b> la fracción, <i>no</i> la vuelve negativa: '+potF(2,3,'−2')+op('=')+F(9,4)+', nunca −9/4.',
-      '<span class="paso">Exponente cero</span> a<sup class="pot">0</sup> = <span class="resalta">1</span> (con a ≠ 0), no 0.',
+      '<span class="paso">⚠️ ¡Cuidado! Errores frecuentes</span> Ni la potencia ni la raíz se reparten sobre una <b>suma</b>:<br><br>\\((a+b)^{2}\\neq a^{2}+b^{2}\\) &nbsp;&nbsp;y&nbsp;&nbsp; \\(\\sqrt{a+b}\\neq\\sqrt{a}+\\sqrt{b}\\)',
+      '<span class="paso">Compruébalo con números</span> \\(\\sqrt{9+16}=\\sqrt{25}=\\) <span class="resalta">5</span>, pero \\(\\sqrt{9}+\\sqrt{16}=3+4=\\) <span class="resalta">7</span>. ¡Son distintos!',
+      '<span class="paso">El exponente negativo</span> <b>Invierte</b> la fracción, <i>no</i> la vuelve negativa: '+potF(2,3,'−2')+op('=')+F(9,4)+', nunca \\(-\\tfrac{9}{4}\\).',
+      '<span class="paso">Exponente cero</span> \\(a^{0}=\\) <span class="resalta">1</span> (con \\(a\\neq 0\\)), no 0.',
       '<span class="paso">La regla de oro</span> Raíces y potencias solo se separan cuando hay <b>producto</b> o <b>cociente</b>.'
     ]);
   }
@@ -1215,11 +1471,13 @@ function aprendeProp(){
 function nuevoEjercicio(){
   actual=OPS[opActual].gen();
   intentoResuelto=false;
-  document.getElementById('prob-etiqueta').textContent=actual.tag||'Ejercicio';
+  var etiqueta=actual.tag||'Ejercicio';
+  if(!OPS[opActual].reto){etiqueta+=' · '+Array(nivelActual()+1).join('⭐');}
+  document.getElementById('prob-etiqueta').textContent=etiqueta;
   var inst=actual.inst||'Resuelve y escribe el resultado más simple:';
   if(actual.ansD===1){inst+=' <b>(Si te da un número entero, escríbelo arriba y pon 1 abajo.)</b>';}
-  document.getElementById('prob-instruccion').innerHTML=inst;
-  document.getElementById('prob-expr').innerHTML=actual.expr;
+  ponerMate(document.getElementById('prob-instruccion'),inst);
+  ponerMate(document.getElementById('prob-expr'),actual.expr);
   document.getElementById('in-num').value='';
   document.getElementById('in-den').value='';
   document.getElementById('in-num').disabled=false;
@@ -1262,14 +1520,32 @@ function comprobar(){
     var msg='🎉 ¡Correcto! +'+puntos+' puntos';
     if(!simple){msg+='<br><span style="font-weight:500;">💡 Tu respuesta es válida, pero la más simple es '+F(actual.ansN,actual.ansD)+'</span>';}
     if(sesion.racha>=3){msg+='<div class="racha-banner">🔥 ¡Racha de '+sesion.racha+'! Vas encendido</div>';}
-    fb.innerHTML=msg;
+    if(sesion.racha===3||sesion.racha===6){msg+='<div class="racha-banner">📈 ¡Subes a nivel '+nivelActual()+'! Ejercicios más retadores</div>';}
+    ponerMate(fb,msg);
     document.getElementById('in-num').disabled=true;
     document.getElementById('in-den').disabled=true;
     document.getElementById('btn-comprobar').disabled=true;
-    document.getElementById('acc-siguiente').style.display='flex';
+    if(!reto.activo && !modoRepaso){document.getElementById('acc-siguiente').style.display='flex';}
     lanzarConfeti();
     popXp('+'+puntos);
     actualizarStats();
+    sonido(sesion.racha>=3?'racha':'ok');
+    // progreso por tema (práctica inteligente) y logros
+    if(perfil){
+      var t=perfil.temas[opActual]||(perfil.temas[opActual]={ok:0,int:0});
+      t.int++;t.ok++;guardarPerfil();
+      if(sesion.correctos===1){award('primero');}
+      if(sesion.racha>=5){award('racha5');}
+      if(sesion.racha>=10){award('racha10');}
+      if(sesion.xp>=100){award('cien');}
+      var nt=0;Object.keys(OPS).forEach(function(k){if(!OPS[k].reto&&perfil.temas[k]&&perfil.temas[k].ok>0){nt++;}});
+      if(nt>=8){award('explorador');}
+    }
+    if(reto.activo){
+      reto.aciertos++;
+      setTimeout(function(){if(reto.activo){nuevoEjercicio();}},650);
+    }
+    if(modoRepaso){setTimeout(siguienteRepaso,900);}
   }else{
     // Incorrecto
     sesion.racha=0;
@@ -1278,6 +1554,12 @@ function comprobar(){
     var preg=document.getElementById('pregunta');
     preg.classList.remove('shake'); void preg.offsetWidth; preg.classList.add('shake');
     actualizarStats();
+    sonido('mal');
+    if(perfil){
+      var t2=perfil.temas[opActual]||(perfil.temas[opActual]={ok:0,int:0});
+      t2.int++;guardarPerfil();
+    }
+    if(!reto.activo){sesion.fallosOp[opActual]=(sesion.fallosOp[opActual]||0)+1;}
   }
 }
 
@@ -1285,7 +1567,7 @@ function mostrarPista(){
   var fb=document.getElementById('feedback');
   if(intentoResuelto){return;}
   fb.className='feedback pista';
-  fb.innerHTML='💡 '+actual.hint;
+  ponerMate(fb,'💡 '+actual.hint);
 }
 
 function verSolucion(){
@@ -1294,7 +1576,7 @@ function verSolucion(){
   actual.sol.forEach(function(p){html+='<div class="p">'+p+'</div>';});
   html+='</div>';
   fb.className='feedback pista';
-  fb.innerHTML=html;
+  ponerMate(fb,html);
   // al ver la solución dejamos pasar al siguiente (sin sumar puntos)
   if(!intentoResuelto){
     intentoResuelto=true;
@@ -1413,7 +1695,15 @@ function enviarDatos(){
 }
 
 function terminarSesion(){
+  detenerReto();
+  modoRepaso=false;repasoQueue=[];
   enviarDatos();
+  if(perfil){
+    perfil.sesiones=(perfil.sesiones||0)+1;
+    guardarPerfil();
+    if(perfil.sesiones>=5){award('constante');}
+  }
+  document.getElementById('btn-repaso').style.display=Object.keys(sesion.fallosOp).length?'':'none';
   var d=construirDatos();
   document.getElementById('res-nombre').textContent=estudiante.nombre+' · '+estudiante.curso;
   document.getElementById('res-tiempo').textContent=d.duracion;
@@ -1432,11 +1722,25 @@ function terminarSesion(){
 
 function reiniciar(){
   // nueva sesión (nuevo registro al terminar)
-  sesion={inicio:Date.now(),correctos:0,intentos:0,xp:0,racha:0,mejorRacha:0,porOp:{},enviado:false};
+  sesion={inicio:Date.now(),correctos:0,intentos:0,xp:0,racha:0,mejorRacha:0,porOp:{},fallosOp:{},enviado:false};
   actualizarStats();
   arrancarTimer();
+  actualizarReco();
   mostrar('menu');
 }
+
+/* Recordar al último estudiante y estado del sonido */
+(function(){
+  var u=lsGet('fm:ultimo');
+  if(u&&u.nombre){
+    document.getElementById('nombre').value=u.nombre;
+    var sel=document.getElementById('curso');
+    for(var i=0;i<sel.options.length;i++){
+      if(sel.options[i].value===u.curso){sel.value=u.curso;break;}
+    }
+  }
+  refrescarSonido();
+})();
 
 /* Respaldo: si el estudiante cierra la pestaña, enviamos el registro */
 window.addEventListener('pagehide',enviarDatos);
